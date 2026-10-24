@@ -145,5 +145,5 @@ Economic research is in progress. Planned topics include how wholesale electrici
 
 - [ERCOT](https://www.ercot.com/) for publishing historical electricity market data
 - [Streamlit](https://streamlit.io/) for the dashboard framework
-- [Best README Template](https://github.com/othneildrew/Best-README-Template) for layout inspiration
+
 
