@@ -5,6 +5,8 @@ import plotly.express as px
 import subprocess
 import tempfile
 import shutil
+import plotly.graph_objects as go
+
 from pathlib import Path
 
 # file locations
@@ -191,22 +193,49 @@ with st.expander("View Daily Price Data"):
 # price distribution
 st.subheader("Electricity Price Distribution")
 
+
+
+# price distribution
+st.subheader("Electricity Price Distribution")
+
 hist = px.histogram(
     filtered_prices,
     x="Price",
-    nbins=60,
-    title="Distribution of Electricity Prices"
+    title="Distribution of Electricity Prices",
+    labels={"Price": "Price ($/MWh)"}
 )
 
-hist.update_layout(
-    xaxis_title="Price ($/MWh)",
-    yaxis_title="Number of Observations"
+# make histogram bars smaller
+hist.update_traces(
+    xbins=dict(
+        start=-300,
+        end=1500,
+        size=5
+    )
 )
 
+# red dashed line for spike threshold
 hist.add_vline(
     x=threshold,
     line_dash="dash",
     line_color="red"
+)
+
+# add threshold to legend
+hist.add_trace(
+    go.Scatter(
+        x=[None],
+        y=[None],
+        mode="lines",
+        name=f"Price Spike Threshold (${threshold}/MWh)",
+        line=dict(color="red", dash="dash")
+    )
+)
+
+hist.update_layout(
+    xaxis_title="Price ($/MWh)",
+    yaxis_title="Number of Observations",
+    showlegend=True
 )
 
 st.plotly_chart(hist, width="stretch")
