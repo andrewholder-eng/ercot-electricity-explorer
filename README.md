@@ -2,7 +2,7 @@
 
 # ERCOT Electricity Price Explorer
 
-**An interactive dashboard for exploring Texas wholesale electricity prices using C++ and Python.**
+An interactive dashboard for exploring Texas wholesale electricity prices using C++ and Python.
 
 [Live Dashboard](https://ercot-electricity-explorer-qmiapptwggeenabuzxjcecf.streamlit.app/) · [Source Code](https://github.com/andrewholder-eng/ercot-electricity-explorer) · [Data Source](https://www.ercot.com/mktinfo/prices)
 
@@ -10,18 +10,47 @@
 
 ## About the Project
 
-The ERCOT Electricity Price Explorer analyzes historical Real-Time Market electricity prices for the **Houston trading hub (`HB_HOUSTON`)**. It combines a **C++ analysis backend** with a **Python/Streamlit dashboard** to help users explore price trends, compare dates, and identify unusually high wholesale electricity prices.
+The ERCOT Electricity Price Explorer analyzes historical Real-Time Market electricity prices for the Houston trading hub (`HB_HOUSTON`). It combines a C++ analysis backend with a Python/Streamlit dashboard to help users explore price trends, compare dates, and identify unusually high wholesale electricity prices.
 
-The current dataset covers **January through October 17, 2026**, using 15-minute settlement price observations. The dashboard is intended for educational data analysis; wholesale prices are not the same as residential electricity rates.
+The current dataset covers January through October 17, 2026, using 15-minute settlement price observations. The dashboard is intended for educational data analysis; wholesale prices are not the same as residential electricity rates.
+
+
+## About the Project
+
+The ERCOT Electricity Price Explorer is an interactive dashboard
+that analyzes historical electricity prices in Texas using C++ and Python.
+
+The project allows users to explore electricity price trends,
+identify price spikes, and analyze historical ERCOT market data.
+
+## Screenshots
+
+### Dashboard Overview
+![Dashboard](images/dashboard.png)
+
+### Electricity Price Trends
+![Price Trends](images/pricetrends.png)
+
+### Electricity Price Distribution
+![Price Distribution](images/electricityprice.png)
+
+### Price Spike Timeline
+![Spike Timeline](images/spikesgraph.png)
+
+### Highest Electricity Prices
+![Highest Prices](images/spikes.png)
+
+
+
 
 ## Built With
 
-- **C++17:** Reads CSV files, calculates summary statistics and hourly/daily averages, and detects price spikes
-- **Python:** Connects the C++ backend to the web application
-- **Streamlit:** Interactive dashboard and input controls
-- **Pandas:** Data loading, filtering, and analysis
-- **Plotly:** Interactive charts and visualizations
-- **Git & GitHub:** Version control and collaboration
+- C++17: Reads CSV files, calculates summary statistics and hourly/daily averages, and detects price spikes
+- Python: Connects the C++ backend to the web application
+- Streamlit: Interactive dashboard and input controls
+- Pandas: Data loading, filtering, and analysis
+- Plotly: Interactive charts and visualizations
+- Git & GitHub: Version control and collaboration
 
 ## Features
 
@@ -32,9 +61,7 @@ The current dataset covers **January through October 17, 2026**, using 15-minute
 - Explore the price distribution and 15-minute price timeline
 - View the 10 highest prices in the selected period
 
-<!-- Add a screenshot after saving it to images/dashboard.png:
-![ERCOT Electricity Price Explorer dashboard](images/dashboard.png)
--->
+
 
 ## How It Works
 
@@ -78,13 +105,13 @@ The app compiles `cpp/main.cpp` automatically if the executable is not already p
 
 ## Data Source
 
-- **Provider:** Electric Reliability Council of Texas (ERCOT)
-- **Dataset:** Historical Real-Time Market Load Zone and Hub Settlement Point Prices
-- **Location:** `HB_HOUSTON`
-- **Coverage:** January 1–October 17, 2026 (October is partial)
-- **Resolution:** 15-minute settlement intervals
-- **Units:** USD per megawatt-hour ($/MWh)
-- **Official source:** [ERCOT Market Prices](https://www.ercot.com/mktinfo/prices)
+- Provider: Electric Reliability Council of Texas (ERCOT)
+- Dataset: Historical Real-Time Market Load Zone and Hub Settlement Point Prices
+- Location: `HB_HOUSTON`
+- Coverage: January 1–October 17, 2026 (October is partial)
+- Resolution: 15-minute settlement intervals
+- Units: USD per megawatt-hour ($/MWh)
+- Official source: [ERCOT Market Prices](https://www.ercot.com/mktinfo/prices)
 
 The repository's `data/prices.csv` is used for the C++ calculations, while `data/prices_detailed.csv` preserves settlement-interval details for the timeline. Negative prices may occur in wholesale electricity markets and are retained in the analysis.
 
@@ -94,11 +121,11 @@ This project is a collaboration between students working on software development
 
 | Contributor | Background | Contributions |
 | --- | --- | --- |
-| **[Andrew Holder](https://github.com/andrewholder-eng)** | Texas A&M University — Engineering | Primarily developed the **C++ backend**, including CSV processing, price statistics, hourly/daily averages, and spike detection; collaborated on integration, testing, and deployment. |
-| **Purdue collaborator — name/GitHub to add** | Purdue University — Electrical and Computer Engineering | Primarily developed the **Python portion**, including the Streamlit interface, data handling, and visualizations; collaborated on C++/Python integration, testing, and deployment. |
-| **Economics collaborator — name/GitHub to add** | Economics | Researching ERCOT market structure, historical price movements, and potential economic explanations for price spikes. |
+| [Andrew Holder](https://github.com/andrewholder-eng) | Texas A&M University — Engineering | Led C++ backend development and worked on integration, testing, and deployment. |
+| Purdue collaborator — name/GitHub to add | Purdue University — Electrical and Computer Engineering | Led Python dashboard development and worked on integration, testing, and deployment. |
+| Economics collaborator — name/GitHub to add | Economics | Researching ERCOT pricing trends, market conditions, and price spikes. |
 
-*Update the contributor details to reflect each person's completed work before publishing the final project description.*
+Update contributor details as work is completed.
 
 ## Economic Analysis
 
@@ -120,6 +147,3 @@ Economic research is in progress. Planned topics include how wholesale electrici
 - [Streamlit](https://streamlit.io/) for the dashboard framework
 - [Best README Template](https://github.com/othneildrew/Best-README-Template) for layout inspiration
 
----
-
-*Independent educational project; not affiliated with or endorsed by ERCOT.*
