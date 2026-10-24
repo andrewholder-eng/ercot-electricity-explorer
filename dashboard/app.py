@@ -3,12 +3,34 @@ import streamlit as st
 import pandas as pd
 import plotly.express as px
 import subprocess
+import tempfile
+import shutil
 from pathlib import Path
 
 # file locations
 project_dir = Path(__file__).resolve().parent.parent
 data_dir = project_dir / "data"
 executable = project_dir / "cpp" / "ercot"
+
+# compile C++ if needed
+@st.cache_resource
+def compile_cpp():
+    if not executable.exists():
+        subprocess.run(
+            [
+                "g++", "-std=c++17", "-O2",
+                str(project_dir / "cpp" / "main.cpp"),
+                "-o", str(executable)
+            ],
+            cwd=project_dir,
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=60
+        )
+
+    return executable
+
 
 # website setup
 st.set_page_config(page_title="ERCOT Electricity Explorer", layout="wide")
@@ -18,8 +40,12 @@ st.write("Electricity price analysis using C++ and Python")
 st.caption("Source: ERCOT Real-Time Market | HB_HOUSTON | 2026")
 
 # read the original prices
-prices = pd.read_csv(data_dir / "prices.csv")
-prices["Date"] = pd.to_datetime(prices["Date"])
+try:
+    prices = pd.read_csv(data_dir / "prices.csv")
+    prices["Date"] = pd.to_datetime(prices["Date"])
+except (OSError, ValueError, KeyError) as error:
+    st.error(f"Error loading electricity prices: {error}")
+    st.stop()
 
 # filters
 st.subheader("Analysis Filters")
@@ -61,24 +87,54 @@ if filtered_prices.empty:
 
 # run C++ with the selected filters
 try:
-    subprocess.run(
-        [str(executable), str(threshold), str(start_date), str(end_date)],
-        cwd=project_dir,
-        capture_output=True,
-        text=True,
-        check=True,
-        timeout=15
-    )
-except (OSError, subprocess.CalledProcessError,
-        subprocess.TimeoutExpired) as error:
+    compile_cpp()
+
+    # create a separate temporary folder for this analysis
+    with tempfile.TemporaryDirectory() as temp:
+        temp_data = Path(temp) / "data"
+        temp_data.mkdir()
+
+        # copy original prices into the temporary folder
+        shutil.copy2(
+            data_dir / "prices.csv",
+            temp_data / "prices.csv"
+        )
+
+        # C++ reads and writes files inside this folder
+        subprocess.run(
+            [
+                str(executable),
+                str(threshold),
+                str(start_date),
+                str(end_date)
+            ],
+            cwd=temp,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.PIPE,
+            text=True,
+            check=True,
+            timeout=60
+        )
+
+        # load results before the temporary folder is deleted
+        hourly = pd.read_csv(temp_data / "hourly_averages.csv")
+        daily = pd.read_csv(temp_data / "daily_averages.csv")
+        summary = pd.read_csv(temp_data / "summary.csv")
+        spikes = pd.read_csv(temp_data / "spikes.csv")
+
+except subprocess.CalledProcessError as error:
+    st.error("Error running C++ analysis.")
+    st.code(error.stderr or error.stdout or str(error))
+    st.stop()
+
+except (OSError, subprocess.TimeoutExpired, ValueError) as error:
     st.error(f"Error running C++: {error}")
     st.stop()
 
-# load the files created by C++
-hourly = pd.read_csv(data_dir / "hourly_averages.csv")
-daily = pd.read_csv(data_dir / "daily_averages.csv")
-summary = pd.read_csv(data_dir / "summary.csv")
-spikes = pd.read_csv(data_dir / "spikes.csv")
+# check that results contain data
+if hourly.empty or daily.empty or summary.empty:
+    st.error("C++ did not generate valid price statistics.")
+    st.stop()
 
 daily["Date"] = pd.to_datetime(daily["Date"])
 
@@ -87,9 +143,9 @@ st.subheader("Electricity Price Statistics")
 
 col1, col2, col3 = st.columns(3)
 
-col1.metric("Average Price", f"${summary['Average'][0]:.2f}/MWh")
-col2.metric("Minimum Price", f"${summary['Minimum'][0]:.2f}/MWh")
-col3.metric("Maximum Price", f"${summary['Maximum'][0]:.2f}/MWh")
+col1.metric("Average Price", f"${summary['Average'].iloc[0]:.2f}/MWh")
+col2.metric("Minimum Price", f"${summary['Minimum'].iloc[0]:.2f}/MWh")
+col3.metric("Maximum Price", f"${summary['Maximum'].iloc[0]:.2f}/MWh")
 
 # hourly average graph
 st.subheader("Hourly Electricity Price Trends")
@@ -122,6 +178,7 @@ daily_fig = px.line(
     markers=True,
     title="Average Price by Day",
     labels={
+        "Date": "Date",
         "AveragePrice": "Average Price ($/MWh)"
     }
 )
@@ -146,13 +203,21 @@ hist.update_layout(
     yaxis_title="Number of Observations"
 )
 
-hist.add_vline(x=threshold, line_dash="dash", line_color="red")
+hist.add_vline(
+    x=threshold,
+    line_dash="dash",
+    line_color="red"
+)
 
 st.plotly_chart(hist, width="stretch")
 
 # load the detailed data for the timeline
-detailed = pd.read_csv(data_dir / "prices_detailed.csv")
-detailed["Date"] = pd.to_datetime(detailed["Date"])
+try:
+    detailed = pd.read_csv(data_dir / "prices_detailed.csv")
+    detailed["Date"] = pd.to_datetime(detailed["Date"])
+except (OSError, ValueError, KeyError) as error:
+    st.error(f"Error loading detailed prices: {error}")
+    st.stop()
 
 # only keep dates in the selected range
 timeline = detailed[
@@ -181,7 +246,10 @@ timeline_fig = px.scatter(
     x="Timestamp",
     y="Price",
     color="Spike",
-    color_discrete_map={False: "steelblue", True: "red"},
+    color_discrete_map={
+        False: "steelblue",
+        True: "red"
+    },
     title="15-Minute Electricity Prices",
     labels={
         "Timestamp": "Date and Time",
