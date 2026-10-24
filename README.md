@@ -121,7 +121,7 @@ This project is a collaboration between students working on software development
 
 | Contributor | Background | Contributions |
 | --- | --- | --- |
-| [Andrew Holder](https://github.com/andrewholder-eng) | Texas A&M University — Engineering | Led C++ backend development and worked on integration, testing, and deployment. |
+| [Andrew Holder](https://github.com/andrewholder-eng) | Texas A&M University — Computer Engineering | Led C++ backend development and worked on integration, testing, and deployment. |
 | [NuclearDuck9](https://github.com/NuclearDuck9) | Purdue University — Electrical and Computer Engineering | Led Python dashboard development and worked on integration, testing, and deployment. |
 | Economics collaborator — name/GitHub to add | Economics | Researching ERCOT pricing trends, market conditions, and price spikes. |
 
